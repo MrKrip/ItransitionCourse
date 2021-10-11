@@ -48,12 +48,17 @@ namespace ItransitionCourse.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Newtask(TaskEntity task)
+        public async Task<IActionResult> Newtask(Models.Entity.Task task)
         {
             var user =await _userManager.GetUserAsync(HttpContext.User);
-            TaskEntity newTask = new TaskEntity() { Title=task.Title,TaskText=task.TaskText,Answer1=task.Answer1, Answer2 = task.Answer2 ,
-                Answer3 = task.Answer3,CreationDate=DateTime.Now,UserId= User.FindFirstValue(ClaimTypes.NameIdentifier),
-                User=user };
+            Models.Entity.Task newTask = new Models.Entity.Task() { Title= task.Title,
+                TaskText = task.TaskText,
+                Answer1 = task.Answer1, Answer2 = task.Answer2 ,
+                Answer3 = task.Answer3,
+                CreationDate = DateTime.Now,
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                User= user
+            };
             db.Tasks.Add(newTask);
             db.SaveChanges();
             return RedirectToAction("Index");

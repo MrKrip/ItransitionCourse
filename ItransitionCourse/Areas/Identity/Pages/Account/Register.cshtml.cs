@@ -45,8 +45,8 @@ namespace ItransitionCourse.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required]
             [Display(Name = "Name")]
+            [MaxLength(100)]
             public string Name { get; set; }
             [Required]
             [EmailAddress]

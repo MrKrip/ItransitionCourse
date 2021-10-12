@@ -1,8 +1,38 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@using ItransitionCourse.Models
+@model IEnumerable<TaskViewModel>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row mb-2">
+    @{
+        foreach (var Task in Model)
+        {
+                <div class="col-md-6">
+                    <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                        <div class="col p-4 d-flex flex-column position-static">
+                            <strong class="d-inline-block mb-2 text-primary">@Task.Theme</strong>
+                            <h4 class="mb-0">@Task.Title</h4>
+                            <div class="mb-1 text-muted"><a class="nav-link text-dark" asp-controller="Home" asp-action="User" asp-route-id="@Task.UserId">@Task.UserName</a></div>
+                            <p class="card-text mb-auto">@Task.TaskText</p>
+                            <a asp-controller="Home" asp-action="ReadTask" asp-route-id="@Task.TaskId">Continue reading</a>
+                        </div>
+                        <div class="col-auto d-none d-lg-block">
+                            @{
+                                if (Task.Image == null)
+                                {
+                                    <svg class="bd-placeholder-img" width="200" height="250" xmlns="http://www.w3.org/2000/svg" role="img" preserveAspectRatio="xMidYMid slice" focusable="false"></svg>
+                                }
+                                else
+                                {
+                                    <svg class="bd-placeholder-img" width="200" height="250" xmlns="@Task.Image" role="img" preserveAspectRatio="xMidYMid slice" focusable="false"></svg>
+                                }
+                            }
+
+
+                        </div>
+                    </div>
+                </div>
+            }
+        }
 </div>

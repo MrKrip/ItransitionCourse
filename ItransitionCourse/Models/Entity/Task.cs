@@ -12,15 +12,25 @@ namespace ItransitionCourse.Models.Entity
     {
         [Key]
         public int TaskId { get; set; }
+        [Required]
         [MaxLength(100)]
+        [MinLength(1)]
         [Display(Name = "Title")]
         public string Title { get; set; }
+        [Required]
         [MaxLength(5000)]
+        [MinLength(1)]
         [Display(Name = "Task")]
         public string TaskText { get; set; }
+        public string Theme { get; set; }
+        [Required]
         [MaxLength(100)]
+        [MinLength(1)]
+        [Display(Name = "First Answer")]
         public string Answer1 { get; set; }
+        [Display(Name = "Second(Optional)")]
         public string Answer2 { get; set; }
+        [Display(Name = "Third(Optional)")]
         public string Answer3 { get; set; }
         public string Image1 { get; set; }
         public string Image2 { get; set; }

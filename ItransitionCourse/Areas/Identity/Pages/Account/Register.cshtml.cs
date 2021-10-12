@@ -47,6 +47,7 @@ namespace ItransitionCourse.Areas.Identity.Pages.Account
         {
             [Display(Name = "Name")]
             [MaxLength(100)]
+            [MinLength(1)]
             public string Name { get; set; }
             [Required]
             [EmailAddress]

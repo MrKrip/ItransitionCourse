@@ -13,23 +13,38 @@
     </div>
     <div class="form-group">
         <label asp-for="TaskText"></label>
-        <textarea asp-for="TaskText" class="form-control" /></textarea>
+        <textarea asp-for="TaskText" class="form-control animated" style="resize: none;"></textarea>
         <span asp-validation-for="TaskText" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Answer1"></label>
-        <input asp-for="Answer1" class="form-control" />
-        <span asp-validation-for="Answer1" class="text-danger"></span>
+        <label asp-for="Theme"></label>
+        <select asp-for="Theme" asp-items="@ViewBag.Themes" class="form-control" ></select>
+        <span asp-validation-for="Title" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="Answer2"></label>
-        <input asp-for="Answer2" class="form-control" />
-        <span asp-validation-for="Answer2" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Answer3"></label>
-        <input asp-for="Answer3" class="form-control" />
-        <span asp-validation-for="Answer3" class="text-danger"></span>
+    <div class="form-group row g-3">
+        <div class=" col-sm-3">
+            <label asp-for="Answer1"></label>
+            <input asp-for="Answer1" class="form-control" />
+            <span asp-validation-for="Answer1" class="text-danger"></span>
+        </div>
+        
+        <div class=" col-sm-3">
+            <label asp-for="Answer2"></label>
+            <input asp-for="Answer2" class="form-control" />
+            <span asp-validation-for="Answer2" class="text-danger"></span>
+        </div>
+
+        <div class=" col-sm-3">
+            <label asp-for="Answer3"></label>
+            <input asp-for="Answer3" class="form-control" />
+            <span asp-validation-for="Answer3" class="text-danger"></span>
+        </div>
+
     </div>
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
+<script type="text/javascript">
+    $(function () {
+        $('.animated').autosize({ append: "\n" });
+    });
+</script>

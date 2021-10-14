@@ -1,0 +1,40 @@
+﻿@using ItransitionCourse.Models
+@model ProfileViewModel
+
+
+<h1>@Model.UserName tasks</h1>
+@{ if (Model.CanEdit)
+    { <a class="btn btn-primary" asp-controller="Home" asp-action="NewTask">New Task</a> } }
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Rating</th>
+            @{ if (Model.CanEdit)
+                {
+                    <th>Actions</th>
+ } }
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var task in Model.Tasks)
+            {
+                <tr>
+                    <th><a class="nav-link text-dark" asp-controller="Home" asp-action="ReadTask" asp-route-id="@task.TaskId">@task.Title</a></th>
+                    <th>0</th>
+                    @{ if (Model.CanEdit)
+                        {
+                            <th>
+                                <ul class="navbar-nav">
+                                    <li class="nav-item"><a asp-controller="Home" asp-action="Edit" asp-route-id="@task.TaskId">Edit</a></li>
+                                    <li class="nav-item"><a asp-controller="Home" asp-action="Delete" asp-route-id="@task.TaskId">Delete</a></li>
+                                </ul>
+                            </th>
+                        } }
+                </tr>
+            }
+        }
+    </tbody>
+</table>

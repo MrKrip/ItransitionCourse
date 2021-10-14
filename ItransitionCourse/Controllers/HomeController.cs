@@ -68,19 +68,58 @@ namespace ItransitionCourse.Controllers
         [HttpPost]
         public async Task<IActionResult> Newtask(Models.Entity.Task task)
         {
-            var user =await _userManager.GetUserAsync(HttpContext.User);
-            Models.Entity.Task newTask = new Models.Entity.Task() { Title = task.Title,
-                TaskText = task.TaskText,
-                Answer1 = task.Answer1, Answer2 = task.Answer2,
-                Answer3 = task.Answer3,
-                CreationDate = DateTime.Now,
-                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                User = user,
-                Theme = task.Theme
-            };
-            db.Tasks.Add(newTask);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            if (ModelState.IsValid)
+            {
+                var user =await _userManager.GetUserAsync(HttpContext.User);
+                Models.Entity.Task newTask = new Models.Entity.Task() { Title = task.Title,
+                    TaskText = task.TaskText,
+                    Answer1 = task.Answer1, Answer2 = task.Answer2,
+                    Answer3 = task.Answer3,
+                    CreationDate = DateTime.Now,
+                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    User = user,
+                    Theme = task.Theme
+                };
+                db.Tasks.Add(newTask);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return View();
+            }
+            
+        }
+
+        public async Task<IActionResult> Profile(string id)
+        {
+            if(string.IsNullOrEmpty(id))
+            {
+                return Redirect("~/");
+            }
+
+           var user=await _userManager.FindByIdAsync(id);
+           if(user==null)
+           {
+                return Redirect("~/");
+            }
+            bool CanEdit =((await _userManager.GetUserAsync(HttpContext.User)).Id==id)||(User.IsInRole("Admin"));
+            var profile = new ProfileViewModel() { UserName = user.UserName,UserId=id, CanEdit=CanEdit ,
+                    Tasks =db.Tasks.Where(T=>T.UserId==id).Select(T=>new ProfileViewModel.ProfileTask() { TaskId=T.TaskId, Title=T.Title })};
+             return View(profile);
+
+        }
+
+        public IActionResult ReadTask(int? id)
+        {
+            if (id == null)
+            {
+                return Redirect("~/");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

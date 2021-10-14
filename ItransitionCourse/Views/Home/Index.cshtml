@@ -13,7 +13,7 @@
                         <div class="col p-4 d-flex flex-column position-static">
                             <strong class="d-inline-block mb-2 text-primary">@Task.Theme</strong>
                             <h4 class="mb-0">@Task.Title</h4>
-                            <div class="mb-1 text-muted"><a class="nav-link text-dark" asp-controller="Home" asp-action="User" asp-route-id="@Task.UserId">@Task.UserName</a></div>
+                            <div class="mb-1 text-muted"><a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-id="@Task.UserId">@Task.UserName</a></div>
                             <p class="card-text mb-auto">@Task.TaskText</p>
                             <a asp-controller="Home" asp-action="ReadTask" asp-route-id="@Task.TaskId">Continue reading</a>
                         </div>

@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Westwind.AspNetCore.Markdown;
 
 namespace ItransitionCourse
 {
@@ -30,6 +31,9 @@ namespace ItransitionCourse
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("HostingConnection")));
+            services.AddMarkdown();
+            services.AddMvc()
+                .AddApplicationPart(typeof(MarkdownPageProcessorMiddleware).Assembly);
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.Configure<IdentityOptions>(options =>
             {

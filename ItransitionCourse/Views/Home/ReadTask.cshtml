@@ -1,5 +1,6 @@
 ﻿@using ItransitionCourse.Models
 @using Microsoft.AspNetCore.Identity
+@using Markdig
 @inject SignInManager<IdentityUser> SignInManager
 @model TaskViewModel
 
@@ -9,7 +10,7 @@
 <div>Rating : </div>
 <hr>
 <p>
-    @Model.TaskText
+    @Html.Raw(Markdown.ToHtml(Markdown.Parse(Model.TaskText)))
 </p>
 
 @{

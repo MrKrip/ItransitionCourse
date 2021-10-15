@@ -103,8 +103,18 @@ namespace ItransitionCourse.Controllers
            if(user==null)
            {
                 return Redirect("~/");
+           }
+            var CurrentUser = await _userManager.GetUserAsync(HttpContext.User);
+            bool CanEdit;
+            if(CurrentUser==null)
+            {
+                CanEdit = false;
             }
-            bool CanEdit =((await _userManager.GetUserAsync(HttpContext.User)).Id==id)||(User.IsInRole("Admin"));
+            else
+            {
+                CanEdit = ((await _userManager.GetUserAsync(HttpContext.User)).Id == id) || (User.IsInRole("Admin"));
+            }
+
             var profile = new ProfileViewModel() { UserName = user.UserName,UserId=id, CanEdit=CanEdit ,
                     Tasks =db.Tasks.Where(T=>T.UserId==id).Select(T=>new ProfileViewModel.ProfileTask() { TaskId=T.TaskId, Title=T.Title })};
              return View(profile);
@@ -148,12 +158,12 @@ namespace ItransitionCourse.Controllers
             }
             else
             {
-                string AnswerString = $"First answer : {task.Answer1}\n";
+                string AnswerString = $"First answer : {task.Answer1};    ";
                 if (!string.IsNullOrEmpty(task.Answer2))
-                    AnswerString += $"Optional answer : {task.Answer2}\n";
+                    AnswerString += $"Optional answer : {task.Answer2};    ";
                 if (!string.IsNullOrEmpty(task.Answer3))
-                    AnswerString += $"Optional answer : {task.Answer3}\n";
-                ViewBag.Message=$"Wrong. Right answers:\n{AnswerString}";
+                    AnswerString += $"Optional answer : {task.Answer3};";
+                ViewBag.Message=$"Wrong. Right answers:    {AnswerString}";
             }
             var users = _userManager.Users;
             var TaskView = from T in db.Tasks

@@ -1,1 +1,37 @@
-﻿
+﻿@using ItransitionCourse.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@model TaskViewModel
+
+<h1 class="blog-post-title">@Model.Title</h1>
+<h3>@Model.Theme</h3>
+<p class="blog-post-meta">@Model.CreationDate by <a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-id="@Model.UserId">@Model.UserName</a></p>
+<div>Rating : </div>
+<hr>
+<p>
+    @Model.TaskText
+</p>
+
+@{
+    if (SignInManager.IsSignedIn(User))
+    {
+        <br>
+        <form method="post">
+            <div class=" col-sm-3">
+                <label>Your Answer</label>
+                <input type="text" name="Answer" class="form-control" />
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary">Check answer</button>
+        </form>
+    }
+}
+
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+            window.onload = function () {
+                alert("@ViewBag.Message");
+            };
+    </script>
+}

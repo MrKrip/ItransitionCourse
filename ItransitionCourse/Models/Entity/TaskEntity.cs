@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ItransitionCourse.Models.Entity
 {
-    public class Task
+    public class TaskEntity
     {
         [Key]
         public int TaskId { get; set; }

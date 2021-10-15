@@ -9,7 +9,7 @@ namespace ItransitionCourse.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
-        public DbSet<Task> Tasks { get; set; }
+        public DbSet<TaskEntity> Tasks { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

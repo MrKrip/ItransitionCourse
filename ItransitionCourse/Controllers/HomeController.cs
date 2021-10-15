@@ -1,4 +1,5 @@
-﻿using ItransitionCourse.Data;
+﻿using Abp.Web.Mvc.Alerts;
+using ItransitionCourse.Data;
 using ItransitionCourse.Models;
 using ItransitionCourse.Models.Entity;
 using Microsoft.AspNetCore.Identity;
@@ -66,12 +67,12 @@ namespace ItransitionCourse.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Newtask(Models.Entity.Task task)
+        public async Task<IActionResult> Newtask(Models.Entity.TaskEntity task)
         {
             if (ModelState.IsValid)
             {
                 var user =await _userManager.GetUserAsync(HttpContext.User);
-                Models.Entity.Task newTask = new Models.Entity.Task() { Title = task.Title,
+                Models.Entity.TaskEntity newTask = new Models.Entity.TaskEntity() { Title = task.Title,
                     TaskText = task.TaskText,
                     Answer1 = task.Answer1, Answer2 = task.Answer2,
                     Answer3 = task.Answer3,
@@ -118,8 +119,57 @@ namespace ItransitionCourse.Controllers
             }
             else
             {
-                return View();
+                var users = _userManager.Users;
+                var TaskView = from T in db.Tasks
+                             join U in users on T.UserId equals U.Id
+                             where T.TaskId==id
+                             select new TaskViewModel()
+                             {
+                                 TaskId = T.TaskId,
+                                 UserName = U.UserName,
+                                 UserId = T.UserId,
+                                 TaskText = T.TaskText,
+                                 Theme = T.Theme,
+                                 Title = T.Title,
+                                 Image = T.Image1
+                             };
+                return View(TaskView.First());
             }
+        }
+
+        [HttpPost]
+        public IActionResult ReadTask(int id, string Answer)
+        {
+            var task = db.Tasks.Where(T => T.TaskId == id).First();
+            bool AnswerBool = (Answer == task.Answer1) || (Answer == task.Answer2) || (Answer == task.Answer3);
+            if(AnswerBool)
+            {
+                ViewBag.Message= "Correct answer";
+            }
+            else
+            {
+                string AnswerString = $"First answer : {task.Answer1}\n";
+                if (!string.IsNullOrEmpty(task.Answer2))
+                    AnswerString += $"Optional answer : {task.Answer2}\n";
+                if (!string.IsNullOrEmpty(task.Answer3))
+                    AnswerString += $"Optional answer : {task.Answer3}\n";
+                ViewBag.Message=$"Wrong. Right answers:\n{AnswerString}";
+            }
+            var users = _userManager.Users;
+            var TaskView = from T in db.Tasks
+                           join U in users on T.UserId equals U.Id
+                           where T.TaskId == id
+                           select new TaskViewModel()
+                           {
+                               TaskId = T.TaskId,
+                               UserName = U.UserName,
+                               UserId = T.UserId,
+                               TaskText = T.TaskText,
+                               Theme = T.Theme,
+                               Title = T.Title,
+                               Image = T.Image1
+                           };
+            return View(TaskView.First());
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

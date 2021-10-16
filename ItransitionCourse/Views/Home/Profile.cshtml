@@ -4,7 +4,13 @@
 
 <h1>@Model.UserName tasks</h1>
 @{ if (Model.CanEdit)
-    { <a class="btn btn-primary" asp-controller="Home" asp-action="NewTask">New Task</a> } }
+    { @if (User.IsInRole("Admin"))
+        { 
+            <a class="btn btn-primary" asp-controller="Home" asp-action="NewTask" asp-route-id="@Model.UserId">New Task</a>
+        }else
+            { <a class="btn btn-primary" asp-controller="Home" asp-action="NewTask">New Task</a> }
+    }
+}
 
 <table class="table">
     <thead>
@@ -14,7 +20,7 @@
             @{ if (Model.CanEdit)
                 {
                     <th>Actions</th>
- } }
+                } }
         </tr>
     </thead>
     <tbody>

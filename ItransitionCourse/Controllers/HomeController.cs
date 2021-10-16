@@ -1,5 +1,6 @@
 ﻿using Abp.Web.Mvc.Alerts;
 using ItransitionCourse.Data;
+using ItransitionCourse.Helpers;
 using ItransitionCourse.Models;
 using ItransitionCourse.Models.Entity;
 using Microsoft.AspNetCore.Identity;
@@ -21,15 +22,18 @@ namespace ItransitionCourse.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ApplicationDbContext db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHelper _helper;
         IEnumerable<string> Themes = new List<string>() { "Java", "C#", "Math", "Geometry", "Теория чисел" };
         private readonly int pageSize = 10;
 
-        public HomeController(ILogger<HomeController> logger, SignInManager<IdentityUser> SignInManager, ApplicationDbContext applicationDb,UserManager<IdentityUser> userManager)
+        public HomeController(ILogger<HomeController> logger, SignInManager<IdentityUser> SignInManager, ApplicationDbContext applicationDb,
+            UserManager<IdentityUser> userManager, IHelper helper)
         {
             _logger = logger;
             _signInManager = SignInManager;
             db = applicationDb;
             _userManager = userManager;
+            _helper = helper;
         }
 
         public IActionResult Index(int? id)
@@ -65,10 +69,12 @@ namespace ItransitionCourse.Controllers
         }
 
 
-        public IActionResult Newtask()
+        public IActionResult Newtask(string id)
         {
             if(_signInManager.IsSignedIn(User))
-            { 
+            {
+                if (!string.IsNullOrEmpty(id) && User.IsInRole("Admin"))
+                    ViewBag.UserId = id;
                 ViewBag.Themes =new SelectList(Themes);
                 return View();
             }
@@ -80,12 +86,21 @@ namespace ItransitionCourse.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Newtask(Models.Entity.TaskEntity task)
+        public async Task<IActionResult> Newtask(TaskEntity task)
         {
             if (ModelState.IsValid)
             {
-                var user =await _userManager.GetUserAsync(HttpContext.User);
-                Models.Entity.TaskEntity newTask = new Models.Entity.TaskEntity() { Title = task.Title,
+                IdentityUser user;
+                if (!User.IsInRole("Admin"))
+                {
+                    user = await _userManager.GetUserAsync(HttpContext.User);
+                }
+                else
+                {
+                    user = await _userManager.FindByIdAsync(task.UserId);
+                }
+                
+                TaskEntity newTask = new TaskEntity() { Title = task.Title,
                     TaskText = task.TaskText,
                     Answer1 = task.Answer1, Answer2 = task.Answer2,
                     Answer3 = task.Answer3,
@@ -117,18 +132,8 @@ namespace ItransitionCourse.Controllers
            {
                 return Redirect("~/");
            }
-            var CurrentUser = await _userManager.GetUserAsync(HttpContext.User);
-            bool CanEdit;
-            if(CurrentUser==null)
-            {
-                CanEdit = false;
-            }
-            else
-            {
-                CanEdit = ((await _userManager.GetUserAsync(HttpContext.User)).Id == id) || (User.IsInRole("Admin"));
-            }
 
-            var profile = new ProfileViewModel() { UserName = user.UserName,UserId=id, CanEdit=CanEdit ,
+            var profile = new ProfileViewModel() { UserName = user.UserName,UserId=id, CanEdit=await _helper.PermissionToEdit(HttpContext,_userManager,id) ,
                     Tasks =db.Tasks.Where(T=>T.UserId==id).Select(T=>new ProfileViewModel.ProfileTask() { TaskId=T.TaskId, Title=T.Title })};
              return View(profile);
 
@@ -136,7 +141,7 @@ namespace ItransitionCourse.Controllers
 
         public IActionResult ReadTask(int? id)
         {
-            if (id == null)
+            if (id == null || db.Tasks.Where(T => T.TaskId == id).Count() == 0)
             {
                 return Redirect("~/");
             }
@@ -193,6 +198,37 @@ namespace ItransitionCourse.Controllers
                                Image = T.Image1
                            };
             return View(TaskView.First());
+        }
+
+        public async Task<IActionResult> Edit(int? id)
+        {            
+            if (id == null || db.Tasks.Where(T => T.TaskId == id).Count() == 0 
+                ||! await _helper.PermissionToEdit(HttpContext,_userManager,db.Tasks.Single(T=>T.TaskId==id).UserId))
+                return Redirect("~/");
+
+            TaskEntity taskEntity = db.Tasks.Single(T=>T.TaskId==id);
+            ViewBag.Themes = new SelectList(Themes);
+            return View(taskEntity);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(TaskEntity task)
+        {
+            db.Tasks.Update(task);
+            db.SaveChanges(); 
+            return Redirect("~/");
+        }
+
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (!(id == null || db.Tasks.Where(T => T.TaskId == id).Count() == 0
+                || !await _helper.PermissionToEdit(HttpContext, _userManager, db.Tasks.Single(T => T.TaskId == id).UserId)))
+            {
+                var task = db.Tasks.Single(T=>T.TaskId==id);
+                db.Tasks.Remove(task);
+                db.SaveChanges();
+            }
+            return Redirect("~/");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -1,0 +1,30 @@
+﻿@using ItransitionCourse.Models
+@model IEnumerable<AdminViewModel>
+<h1>Admin panel</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>User name</th>
+            <th>User roles</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ foreach(var user in Model)
+            {
+                <tr>
+                    <td><a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-id="@user.UserId">@user.UserName</a></td>
+                    <td>
+                        <ul class="navbar-nav">
+                            @foreach (var role in user.UserRoles)
+                            {
+                               <li>@role</li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            }
+
+        }
+    </tbody>
+</table>

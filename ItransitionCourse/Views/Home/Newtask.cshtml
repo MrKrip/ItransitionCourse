@@ -2,11 +2,14 @@
     ViewData["Title"] = "Create New Task";
 }
 @using ItransitionCourse.Models.Entity
-@model  ItransitionCourse.Models.Entity.TaskEntity
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@model ItransitionCourse.Models.Entity.TaskEntity
 <h1>@ViewData["Title"]</h1>
 
 <form method="post">
-    @{ if (User.IsInRole("Admin")) { <input asp-for="UserId" type="hidden" value="@ViewBag.UserId" />}
+    @{ if (ViewBag.Admin)
+        { <input asp-for="UserId" type="hidden" value="@ViewBag.UserId" />}
     }
     <div class="form-group">
         <label asp-for="Title"></label>
@@ -15,12 +18,12 @@
     </div>
     <div class="form-group">
         <label asp-for="TaskText"></label>
-        <textarea asp-for="TaskText" class="form-control" ></textarea>
+        <textarea asp-for="TaskText" class="form-control"></textarea>
         <span asp-validation-for="TaskText" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="Theme"></label>
-        <select asp-for="Theme" asp-items="@ViewBag.Themes" class="form-control" ></select>
+        <select asp-for="Theme" asp-items="@ViewBag.Themes" class="form-control"></select>
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
     <div class="form-group row g-3">
@@ -29,7 +32,7 @@
             <input asp-for="Answer1" class="form-control" />
             <span asp-validation-for="Answer1" class="text-danger"></span>
         </div>
-        
+
         <div class=" col-sm-3">
             <label asp-for="Answer2"></label>
             <input asp-for="Answer2" class="form-control" />

@@ -4,7 +4,7 @@
 
 <h1>@Model.UserName tasks</h1>
 @{ if (Model.CanEdit)
-    { @if (User.IsInRole("Admin"))
+    { @if (ViewBag.Admin)
         { 
             <a class="btn btn-primary" asp-controller="Home" asp-action="NewTask" asp-route-id="@Model.UserId">New Task</a>
         }else

@@ -22,22 +22,25 @@ namespace ItransitionCourse.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ApplicationDbContext db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IHelper _helper;
         IEnumerable<string> Themes = new List<string>() { "Java", "C#", "Math", "Geometry", "Теория чисел" };
         private readonly int pageSize = 10;
 
         public HomeController(ILogger<HomeController> logger, SignInManager<IdentityUser> SignInManager, ApplicationDbContext applicationDb,
-            UserManager<IdentityUser> userManager, IHelper helper)
+            UserManager<IdentityUser> userManager, IHelper helper, RoleManager<IdentityRole> roleManager)
         {
             _logger = logger;
             _signInManager = SignInManager;
             db = applicationDb;
             _userManager = userManager;
             _helper = helper;
+            _roleManager = roleManager;
         }
 
         public IActionResult Index(int? id)
         {
+
             if (id == null)
                 id = 1;
 
@@ -69,13 +72,15 @@ namespace ItransitionCourse.Controllers
         }
 
 
-        public IActionResult Newtask(string id)
+        public async Task<IActionResult> Newtask(string id)
         {
+            
             if(_signInManager.IsSignedIn(User))
             {
-                if (!string.IsNullOrEmpty(id) && User.IsInRole("Admin"))
+                if (!string.IsNullOrEmpty(id)&& _signInManager.IsSignedIn(HttpContext.User) && (await _helper.IsInRole(HttpContext.User,_userManager,"Admin")))
                     ViewBag.UserId = id;
-                ViewBag.Themes =new SelectList(Themes);
+                ViewBag.Admin = _signInManager.IsSignedIn(HttpContext.User) && (await _helper.IsInRole(HttpContext.User, _userManager, "Admin"));
+                ViewBag.Themes = new SelectList(Themes);
                 return View();
             }
             else
@@ -91,7 +96,7 @@ namespace ItransitionCourse.Controllers
             if (ModelState.IsValid)
             {
                 IdentityUser user;
-                if (!User.IsInRole("Admin"))
+                if (!(_signInManager.IsSignedIn(HttpContext.User) && (await _helper.IsInRole(HttpContext.User, _userManager, "Admin"))))
                 {
                     user = await _userManager.GetUserAsync(HttpContext.User);
                 }
@@ -126,7 +131,7 @@ namespace ItransitionCourse.Controllers
             {
                 return Redirect("~/");
             }
-
+            ViewBag.Admin =_signInManager.IsSignedIn(HttpContext.User) && (await _helper.IsInRole(HttpContext.User, _userManager, "Admin"));
            var user=await _userManager.FindByIdAsync(id);
            if(user==null)
            {
@@ -159,6 +164,7 @@ namespace ItransitionCourse.Controllers
                                  TaskText = T.TaskText,
                                  Theme = T.Theme,
                                  Title = T.Title,
+                                 CreationDate=T.CreationDate,
                                  Image = T.Image1
                              };
                 return View(TaskView.First());
@@ -201,7 +207,7 @@ namespace ItransitionCourse.Controllers
         }
 
         public async Task<IActionResult> Edit(int? id)
-        {            
+        {
             if (id == null || db.Tasks.Where(T => T.TaskId == id).Count() == 0 
                 ||! await _helper.PermissionToEdit(HttpContext,_userManager,db.Tasks.Single(T=>T.TaskId==id).UserId))
                 return Redirect("~/");
@@ -221,14 +227,28 @@ namespace ItransitionCourse.Controllers
 
         public async Task<IActionResult> Delete(int? id)
         {
+            string userid=string.Empty;
             if (!(id == null || db.Tasks.Where(T => T.TaskId == id).Count() == 0
                 || !await _helper.PermissionToEdit(HttpContext, _userManager, db.Tasks.Single(T => T.TaskId == id).UserId)))
             {
                 var task = db.Tasks.Single(T=>T.TaskId==id);
+                userid = task.UserId;
                 db.Tasks.Remove(task);
                 db.SaveChanges();
             }
-            return Redirect("~/");
+            return RedirectToAction("Profile","Home",new { id=userid });
+        }
+
+        public IActionResult Admin()
+        {
+            if (!(_signInManager.IsSignedIn(HttpContext.User) && (_helper.IsInRole(HttpContext.User, _userManager, "Admin")).Result))
+                return Redirect("~/");
+            var result =_userManager.Users.Select(U=>new AdminViewModel() { UserId=U.Id,UserName=U.UserName }).ToList();
+            foreach(var user in result)
+            {
+                user.UserRoles = _helper.UserRoles(user.UserId, _userManager).ToList();
+            }
+            return View(result);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

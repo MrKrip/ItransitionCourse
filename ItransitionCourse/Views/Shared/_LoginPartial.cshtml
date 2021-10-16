@@ -8,6 +8,8 @@
     <li class="nav-item">
         <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity.Name!</a>
     </li>
+    @if ((UserManager.GetRolesAsync(UserManager.GetUserAsync(User).Result).Result).Contains("Admin")) { <li class="nav-item">
+    <a class="nav-link text-dark" asp-controller="Home" asp-action="Admin">Admin Panel</a></li> }
     <li>
         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Newtask">New Task</a>
     </li>

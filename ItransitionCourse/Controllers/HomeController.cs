@@ -22,6 +22,7 @@ namespace ItransitionCourse.Controllers
         private readonly ApplicationDbContext db;
         private readonly UserManager<IdentityUser> _userManager;
         IEnumerable<string> Themes = new List<string>() { "Java", "C#", "Math", "Geometry", "Теория чисел" };
+        private readonly int pageSize = 10;
 
         public HomeController(ILogger<HomeController> logger, SignInManager<IdentityUser> SignInManager, ApplicationDbContext applicationDb,UserManager<IdentityUser> userManager)
         {
@@ -33,7 +34,19 @@ namespace ItransitionCourse.Controllers
 
         public IActionResult Index(int? id)
         {
-            var users = _userManager.Users;
+            if (id == null)
+                id = 1;
+
+            int TotalPages = (int)Math.Ceiling(db.Tasks.Count() / (double)pageSize);
+
+            if(id<1 || id>TotalPages)
+                return Redirect("~/");
+
+            ViewBag.HasPreviousPage = id > 1;
+            ViewBag.HasNextPage = TotalPages > id;
+            ViewBag.CurrentPage = id;
+
+           var users = _userManager.Users;
 
             var Tasks = (from T in db.Tasks
                         join U in users on T.UserId equals U.Id
@@ -48,7 +61,7 @@ namespace ItransitionCourse.Controllers
                             Image = T.Image1
                         }).ToList();
             Tasks.Reverse();
-            return View(Tasks);
+            return View(Tasks.Skip((int)((id - 1) * pageSize)).Take(pageSize));
         }
 
 

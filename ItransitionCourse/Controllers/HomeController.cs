@@ -3,6 +3,7 @@ using ItransitionCourse.Data;
 using ItransitionCourse.Helpers;
 using ItransitionCourse.Models;
 using ItransitionCourse.Models.Entity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -65,7 +66,7 @@ namespace ItransitionCourse.Controllers
                             TaskText = T.TaskText.Substring(0, 50) + "....",
                             Theme = T.Theme,
                             Title = T.Title,
-                            Image = T.Image1
+                            Image = db.Images.Where(I=>I.UserId==U.Id).First().Name 
                         }).ToList();
             Tasks.Reverse();
             return View(Tasks.Skip((int)((id - 1) * pageSize)).Take(pageSize));
@@ -125,6 +126,12 @@ namespace ItransitionCourse.Controllers
             
         }
 
+        public async Task<IActionResult> Upload(IFormFile file)
+        {
+            var a = file.FileName;
+            return Ok();
+        }
+
         public async Task<IActionResult> Profile(string id)
         {
             if(string.IsNullOrEmpty(id))
@@ -165,7 +172,7 @@ namespace ItransitionCourse.Controllers
                                  Theme = T.Theme,
                                  Title = T.Title,
                                  CreationDate=T.CreationDate,
-                                 Image = T.Image1
+                                 Image = db.Images.Where(I => I.UserId == U.Id).First().Name
                              };
                 return View(TaskView.First());
             }
@@ -201,7 +208,7 @@ namespace ItransitionCourse.Controllers
                                TaskText = T.TaskText,
                                Theme = T.Theme,
                                Title = T.Title,
-                               Image = T.Image1
+                               Image = db.Images.Where(I => I.UserId == U.Id).First().Name
                            };
             return View(TaskView.First());
         }

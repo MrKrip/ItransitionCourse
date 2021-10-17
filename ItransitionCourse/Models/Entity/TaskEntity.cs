@@ -32,9 +32,6 @@ namespace ItransitionCourse.Models.Entity
         public string Answer2 { get; set; }
         [Display(Name = "Third(Optional)")]
         public string Answer3 { get; set; }
-        public string Image1 { get; set; }
-        public string Image2 { get; set; }
-        public string Image3 { get; set; }
         public string UserId { get; set; }
         public IdentityUser User { get; set; }
         public DateTime CreationDate { get; set; }

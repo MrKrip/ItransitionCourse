@@ -15,9 +15,6 @@ namespace ItransitionCourse.Models
         public string Theme { get; set; }
         public string Image { get; set; }
 
-        public string Image2 { get; set; }
-
-        public string Image3 { get; set; }
         public DateTime CreationDate { get; set; }
     }
 }

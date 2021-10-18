@@ -23,6 +23,14 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                     </ul>
+                    <form asp-controller="Home" asp-action="Search">
+                        <p>
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item"><input type="text" class="form-control" aria-label="Search" placeholder="Search..." name="SearchString" /></li>
+                                <li class="nav-item"><input type="submit" class="btn btn-primary" value="Search" /></li>                         
+                            </ul>
+                        </p>
+                    </form>
                     <partial name="_LoginPartial" />
                 </div>
             </div>

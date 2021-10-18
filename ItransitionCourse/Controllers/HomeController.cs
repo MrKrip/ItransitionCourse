@@ -294,6 +294,52 @@ namespace ItransitionCourse.Controllers
             return View(result);
         }
 
+        public IActionResult Search(int? id,string SearchString)
+        {
+            if (id == null)
+                id = 1;
+
+            var SearchTasks = db.Tasks.Where(T => T.TaskText.Contains(SearchString) || T.Title.Contains(SearchString) || T.Theme.Contains(SearchString)||T.User.UserName.Contains(SearchString));
+
+            int TotalPages = (int)Math.Ceiling(SearchTasks.Count() / (double)pageSize);
+
+            if (id < 1 || id > TotalPages)
+                return Redirect("~/");
+
+            ViewBag.HasPreviousPage = id > 1;
+            ViewBag.HasNextPage = TotalPages > id;
+            ViewBag.CurrentPage = id;
+
+            var users = _userManager.Users;
+            var CurrentUser = _userManager.GetUserAsync(User).Result;
+            var Tasks = (from T in SearchTasks
+                         join U in users on T.UserId equals U.Id
+                         select new TaskViewModel()
+                         {
+                             TaskId = T.TaskId,
+                             UserName = U.UserName,
+                             UserId = T.UserId,
+                             TaskText = T.TaskText.Substring(0, 50) + "....",
+                             Theme = T.Theme,
+                             Title = T.Title,
+                             Image = db.Images.Where(I => I.UserId == U.Id).First().Name,
+                             HasAnAnswer = false
+                         }).ToList();
+            Tasks.Reverse();
+            var OutTasks = Tasks.Skip((int)((id - 1) * pageSize)).Take(pageSize);
+            if (_signInManager.IsSignedIn(HttpContext.User))
+            {
+                foreach (var task in OutTasks)
+                {
+                    var userAnswer = db.Answers.Where(A => A.TaskId == task.TaskId && A.UserID == CurrentUser.Id).ToList();
+                    task.HasAnAnswer = userAnswer.Count > 0;
+                    if (userAnswer.Count > 0)
+                        task.CorrectAnswer = userAnswer.First().CorrectAnswer;
+                }
+            }
+            return View(OutTasks);
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

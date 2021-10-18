@@ -2,6 +2,8 @@
     ViewData["Title"] = "Home Page";
 }
 @using ItransitionCourse.Models
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model IEnumerable<TaskViewModel>
 
 <div class="row mb-2">
@@ -13,19 +15,20 @@
                     <div class="col p-4 d-flex flex-column position-static">
                         <strong class="d-inline-block mb-2 text-primary">@Task.Theme</strong>
                         <h4 class="mb-0">@Task.Title</h4>
-                        @if(Task.HasAnAnswer)
-                         { 
-                            @if(Task.CorrectAnswer)
-                             { 
-                                <div class="mb-1 text-muted">Done correctly</div>
-                             }else
-                             {
-                                <div class="mb-1 text-muted">Done wrong</div>
-                             }
-                         }
+                        @if (Task.HasAnAnswer)
+                        {
+                            @if (Task.CorrectAnswer)
+                            {
+                                <div class="mb-1 text-muted">@Localizer["Done correctly"]</div>
+                            }
+                            else
+                            {
+                                <div class="mb-1 text-muted">@Localizer["Done wrong"]</div>
+                            }
+                        }
                         <div class="mb-1 text-muted"><a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-id="@Task.UserId">@Task.UserName</a></div>
                         <p class="card-text mb-auto">@Task.TaskText</p>
-                        <a asp-controller="Home" asp-action="ReadTask" asp-route-id="@Task.TaskId">Continue reading</a>
+                        <a asp-controller="Home" asp-action="ReadTask" asp-route-id="@Task.TaskId">@Localizer["Continue"]</a>
                     </div>
                     <div class="col-auto d-none d-lg-block">
                         @{
@@ -45,22 +48,22 @@
             </div>
         }
     }
-        @if (ViewBag.HasPreviousPage)
-         {
-            <a asp-action="Index"
-               asp-route-id="@(ViewBag.CurrentPage - 1)"
-               class="btn btn-outline-dark">
-                <i class="glyphicon glyphicon-chevron-left"></i>
-                Previous
-            </a>
-         }
-        @if (ViewBag.HasNextPage)
-         {
-            <a asp-action="Index"
-               asp-route-id="@(ViewBag.CurrentPage + 1)"
-               class="btn btn-outline-dark">
-                Next
-                <i class="glyphicon glyphicon-chevron-right"></i>
-            </a>
-         }
+    @if (ViewBag.HasPreviousPage)
+    {
+        <a asp-action="Index"
+           asp-route-id="@(ViewBag.CurrentPage - 1)"
+           class="btn btn-outline-dark">
+            <i class="glyphicon glyphicon-chevron-left"></i>
+            @Localizer["Previous"]
+        </a>
+    }
+    @if (ViewBag.HasNextPage)
+    {
+        <a asp-action="Index"
+           asp-route-id="@(ViewBag.CurrentPage + 1)"
+           class="btn btn-outline-dark">
+            @Localizer["Next"]
+            <i class="glyphicon glyphicon-chevron-right"></i>
+        </a>
+    }
 </div>

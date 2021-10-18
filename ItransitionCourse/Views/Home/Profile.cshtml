@@ -1,27 +1,30 @@
 ﻿@using ItransitionCourse.Models
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model ProfileViewModel
 
 
-<h1>@Model.UserName tasks</h1>
-<h3>@Model.CorrectTasks correctly completed tasks</h3>
-<h3>@Model.Tasks.Count() tasks</h3>
+<h1>@Model.UserName</h1>
+<h3>@Model.CorrectTasks @Localizer["correctly"]</h3>
+<h3>@Model.Tasks.Count() @Localizer["tasks"]</h3>
 @{ if (Model.CanEdit)
     { @if (ViewBag.Admin)
-        { 
-            <a class="btn btn-primary" asp-controller="Home" asp-action="NewTask" asp-route-id="@Model.UserId">New Task</a>
-        }else
-            { <a class="btn btn-primary" asp-controller="Home" asp-action="NewTask">New Task</a> }
-    }
+        {
+            <a class="btn btn-primary" asp-controller="Home" asp-action="NewTask" asp-route-id="@Model.UserId">@Localizer["New Task"]</a>
+        }
+        else
+        { <a class="btn btn-primary" asp-controller="Home" asp-action="NewTask">@Localizer["New Task"]</a>}
+}
 }
 
 <table class="table">
     <thead>
         <tr>
-            <th>Title</th>
-            <th>Rating</th>
+            <th>@Localizer["Title"]</th>
+            <th>@Localizer["Rating"]</th>
             @{ if (Model.CanEdit)
                 {
-                    <th>Actions</th>
+                    <th>@Localizer["Actions"]</th>
                 } }
         </tr>
     </thead>
@@ -36,8 +39,8 @@
                         {
                             <th>
                                 <ul class="navbar-nav">
-                                    <li class="nav-item"><a asp-controller="Home" asp-action="Edit" asp-route-id="@task.TaskId">Edit</a></li>
-                                    <li class="nav-item"><a asp-controller="Home" asp-action="Delete" asp-route-id="@task.TaskId">Delete</a></li>
+                                    <li class="nav-item"><a asp-controller="Home" asp-action="Edit" asp-route-id="@task.TaskId">@Localizer["Edit"]</a></li>
+                                    <li class="nav-item"><a asp-controller="Home" asp-action="Delete" asp-route-id="@task.TaskId">@Localizer["Delete"]</a></li>
                                 </ul>
                             </th>
                         } }

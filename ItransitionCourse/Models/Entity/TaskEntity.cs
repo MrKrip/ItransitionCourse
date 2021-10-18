@@ -22,6 +22,7 @@ namespace ItransitionCourse.Models.Entity
         [MinLength(1)]
         [Display(Name = "Task")]
         public string TaskText { get; set; }
+        [Display(Name = "Themes")]
         public string Theme { get; set; }
         [Required]
         [MaxLength(100)]

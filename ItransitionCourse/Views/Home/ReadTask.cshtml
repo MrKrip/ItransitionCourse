@@ -1,13 +1,15 @@
 ﻿@using ItransitionCourse.Models
 @using Microsoft.AspNetCore.Identity
 @using Markdig
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @inject SignInManager<IdentityUser> SignInManager
 @model TaskViewModel
 
 <h1 class="blog-post-title">@Model.Title</h1>
 <h3>@Model.Theme</h3>
 <p class="blog-post-meta">@Model.CreationDate by <a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-id="@Model.UserId">@Model.UserName</a></p>
-<div>Rating : </div>
+<div>@Localizer["Rating"] : </div>
 <hr>
 <p>
     @Html.Raw(Markdown.ToHtml(Markdown.Parse(Model.TaskText)))
@@ -22,32 +24,32 @@
 
             <form method="post">
                 <div class=" col-sm-3">
-                    <label>Your Answer</label>
+                    <label>@Localizer["Your Answer"]</label>
                     <input type="text" name="Answer" class="form-control" />
                 </div>
                 <br>
-                <button type="submit" class="btn btn-primary">Check answer</button>
+                <button type="submit" class="btn btn-primary">@Localizer["Check answer"]</button>
             </form>
         }
         else
         {
             if (ViewBag.UserAnswer.CorrectAnswer)
             {
-                <p class="blog-post-meta">Your ansewer correct.(Your answer : @ViewBag.UserAnswer.Answer) </p>
+                <p class="blog-post-meta">@Localizer["Correct"] @ViewBag.UserAnswer.Answer) </p>
             }
             else
             {
-                <p class="blog-post-meta">Wrong Answer.(Your answer : @ViewBag.UserAnswer.Answer) </p>
-                <p class="blog-post-meta">Right answers: @Model.Answer1 </p>
+                <p class="blog-post-meta">@Localizer["Wrong"] @ViewBag.UserAnswer.Answer) </p>
+                <p class="blog-post-meta">@Localizer["Right"] @Model.Answer1 </p>
                 if (Model.Answer2 != null)
-                {<p class="blog-post-meta">Alternative answer : @Model.Answer2</p>}
-                if (Model.Answer3 != null)
-                {<p class="blog-post-meta">Alternative answer : @Model.Answer3</p>}
-            }
-
-        }
-
+                {<p class="blog-post-meta">@Localizer["Alternative"] @Model.Answer2</p>}
+            if (Model.Answer3 != null)
+            {<p class="blog-post-meta">@Localizer["Alternative"] @Model.Answer3</p>}
     }
+
+}
+
+}
 }
 
 @if (ViewBag.Message != null)

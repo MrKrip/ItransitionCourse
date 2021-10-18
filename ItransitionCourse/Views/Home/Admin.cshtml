@@ -1,16 +1,18 @@
 ﻿@using ItransitionCourse.Models
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model IEnumerable<AdminViewModel>
-<h1>Admin panel</h1>
+<h1>@Localizer["Admin panel"]</h1>
 
 <table class="table">
     <thead>
         <tr>
-            <th>User name</th>
-            <th>User roles</th>
+            <th>@Localizer["User name"]</th>
+            <th>@Localizer["User roles"]</th>
         </tr>
     </thead>
     <tbody>
-        @{ foreach(var user in Model)
+        @{ foreach (var user in Model)
             {
                 <tr>
                     <td><a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-id="@user.UserId">@user.UserName</a></td>
@@ -18,7 +20,7 @@
                         <ul class="navbar-nav">
                             @foreach (var role in user.UserRoles)
                             {
-                               <li>@role</li>
+                                <li>@role</li>
                             }
                         </ul>
                     </td>

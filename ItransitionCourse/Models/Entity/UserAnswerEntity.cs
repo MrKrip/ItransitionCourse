@@ -16,5 +16,6 @@ namespace ItransitionCourse.Models.Entity
         public int TaskId { get; set; }
         [Required]
         public string Answer { get; set; }
+        public bool CorrectAnswer { get; set; }
     }
 }

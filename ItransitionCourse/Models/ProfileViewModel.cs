@@ -11,6 +11,7 @@ namespace ItransitionCourse.Models
         public string UserId { get; set; }
         public string UserName { get; set; }
         public bool CanEdit { get; set; }
+        public int CorrectTasks { get; set; }
         public IEnumerable<ProfileTask> Tasks { get; set; }
         public class ProfileTask
         {

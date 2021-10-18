@@ -14,6 +14,11 @@ namespace ItransitionCourse.Models
         public string TaskText { get; set; }
         public string Theme { get; set; }
         public string Image { get; set; }
+        public string Answer1 { get; set; }
+        public string Answer2 { get; set; }
+        public string Answer3 { get; set; }
+        public bool CorrectAnswer { get; set; }
+        public bool HasAnAnswer { get; set; }
 
         public DateTime CreationDate { get; set; }
     }

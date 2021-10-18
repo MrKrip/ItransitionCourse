@@ -16,15 +16,37 @@
 @{
     if (SignInManager.IsSignedIn(User))
     {
-        <br>
-        <form method="post">
-            <div class=" col-sm-3">
-                <label>Your Answer</label>
-                <input type="text" name="Answer" class="form-control" />
-            </div>
-            <br>
-            <button type="submit" class="btn btn-primary">Check answer</button>
-        </form>
+        <hr>
+        if (ViewBag.UserAnswer == null)
+        {
+
+            <form method="post">
+                <div class=" col-sm-3">
+                    <label>Your Answer</label>
+                    <input type="text" name="Answer" class="form-control" />
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary">Check answer</button>
+            </form>
+        }
+        else
+        {
+            if (ViewBag.UserAnswer.CorrectAnswer)
+            {
+                <p class="blog-post-meta">Your ansewer correct.(Your answer : @ViewBag.UserAnswer.Answer) </p>
+            }
+            else
+            {
+                <p class="blog-post-meta">Wrong Answer.(Your answer : @ViewBag.UserAnswer.Answer) </p>
+                <p class="blog-post-meta">Right answers: @Model.Answer1 </p>
+                if (Model.Answer2 != null)
+                {<p class="blog-post-meta">Alternative answer : @Model.Answer2</p>}
+                if (Model.Answer3 != null)
+                {<p class="blog-post-meta">Alternative answer : @Model.Answer3</p>}
+            }
+
+        }
+
     }
 }
 

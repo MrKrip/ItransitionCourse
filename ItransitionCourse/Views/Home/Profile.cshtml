@@ -3,6 +3,8 @@
 
 
 <h1>@Model.UserName tasks</h1>
+<h3>@Model.CorrectTasks correctly completed tasks</h3>
+<h3>@Model.Tasks.Count() tasks</h3>
 @{ if (Model.CanEdit)
     { @if (ViewBag.Admin)
         { 

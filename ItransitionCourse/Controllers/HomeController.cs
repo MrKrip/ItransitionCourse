@@ -1,4 +1,6 @@
 ﻿using Abp.Web.Mvc.Alerts;
+using Dropbox.Api;
+using Dropbox.Api.Files;
 using ItransitionCourse.Data;
 using ItransitionCourse.Helpers;
 using ItransitionCourse.Models;
@@ -7,10 +9,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -25,11 +29,12 @@ namespace ItransitionCourse.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IHelper _helper;
-        IEnumerable<string> Themes = new List<string>() { "Java", "C#", "Math", "Geometry", "Теория чисел" };
+        private readonly IConfiguration _IConfiguration;
+        IEnumerable<string> Themes = new List<string>() { "Java", "C#", "Math", "Geometry" };
         private readonly int pageSize = 10;
 
         public HomeController(ILogger<HomeController> logger, SignInManager<IdentityUser> SignInManager, ApplicationDbContext applicationDb,
-            UserManager<IdentityUser> userManager, IHelper helper, RoleManager<IdentityRole> roleManager)
+            UserManager<IdentityUser> userManager, IHelper helper, RoleManager<IdentityRole> roleManager, IConfiguration IConfiguration)
         {
             _logger = logger;
             _signInManager = SignInManager;
@@ -37,6 +42,7 @@ namespace ItransitionCourse.Controllers
             _userManager = userManager;
             _helper = helper;
             _roleManager = roleManager;
+            _IConfiguration = IConfiguration;
         }
 
         public IActionResult Index(int? id)
@@ -55,7 +61,7 @@ namespace ItransitionCourse.Controllers
             ViewBag.CurrentPage = id;
 
            var users = _userManager.Users;
-
+            var CurrentUser = _userManager.GetUserAsync(User).Result;
             var Tasks = (from T in db.Tasks
                         join U in users on T.UserId equals U.Id
                         select new TaskViewModel()
@@ -66,10 +72,23 @@ namespace ItransitionCourse.Controllers
                             TaskText = T.TaskText.Substring(0, 50) + "....",
                             Theme = T.Theme,
                             Title = T.Title,
-                            Image = db.Images.Where(I=>I.UserId==U.Id).First().Name 
+                            Image = db.Images.Where(I=>I.UserId==U.Id).First().Name,
+                            HasAnAnswer=false
                         }).ToList();
             Tasks.Reverse();
-            return View(Tasks.Skip((int)((id - 1) * pageSize)).Take(pageSize));
+            var OutTasks = Tasks.Skip((int)((id - 1) * pageSize)).Take(pageSize);
+            if(_signInManager.IsSignedIn(HttpContext.User))
+            {
+                foreach(var task in OutTasks)
+                {
+                    var userAnswer = db.Answers.Where(A => A.TaskId == task.TaskId && A.UserID == CurrentUser.Id).ToList();
+                    task.HasAnAnswer = userAnswer.Count > 0;
+                    if (userAnswer.Count > 0)
+                        task.CorrectAnswer = userAnswer.First().CorrectAnswer;
+                }
+            }
+
+            return View(OutTasks);
         }
 
 
@@ -105,13 +124,13 @@ namespace ItransitionCourse.Controllers
                 {
                     user = await _userManager.FindByIdAsync(task.UserId);
                 }
-                
+                var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 TaskEntity newTask = new TaskEntity() { Title = task.Title,
                     TaskText = task.TaskText,
                     Answer1 = task.Answer1, Answer2 = task.Answer2,
                     Answer3 = task.Answer3,
                     CreationDate = DateTime.Now,
-                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    UserId = userid,
                     User = user,
                     Theme = task.Theme
                 };
@@ -128,8 +147,15 @@ namespace ItransitionCourse.Controllers
 
         public async Task<IActionResult> Upload(IFormFile file)
         {
-            var a = file.FileName;
-            return Ok();
+            if (file.ContentType.StartsWith("image/"))
+            {                
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
+            
         }
 
         public async Task<IActionResult> Profile(string id)
@@ -146,7 +172,8 @@ namespace ItransitionCourse.Controllers
            }
 
             var profile = new ProfileViewModel() { UserName = user.UserName,UserId=id, CanEdit=await _helper.PermissionToEdit(HttpContext,_userManager,id) ,
-                    Tasks =db.Tasks.Where(T=>T.UserId==id).Select(T=>new ProfileViewModel.ProfileTask() { TaskId=T.TaskId, Title=T.Title })};
+                    Tasks =db.Tasks.Where(T=>T.UserId==id).Select(T=>new ProfileViewModel.ProfileTask() { TaskId=T.TaskId, Title=T.Title })
+                    , CorrectTasks=db.Answers.Where(A=>A.UserID==id && A.CorrectAnswer).Count()};
              return View(profile);
 
         }
@@ -172,8 +199,15 @@ namespace ItransitionCourse.Controllers
                                  Theme = T.Theme,
                                  Title = T.Title,
                                  CreationDate=T.CreationDate,
+                                 Answer1=T.Answer1,
+                                 Answer2=T.Answer2,
+                                 Answer3=T.Answer3,
                                  Image = db.Images.Where(I => I.UserId == U.Id).First().Name
                              };
+                var CurrentUser = _userManager.GetUserAsync(User).Result;
+                var userAnswer = db.Answers.Where(A => A.TaskId == id && A.UserID == CurrentUser.Id).ToList();
+                if(userAnswer.Count>0)
+                    ViewBag.UserAnswer = userAnswer.First();
                 return View(TaskView.First());
             }
         }
@@ -210,6 +244,8 @@ namespace ItransitionCourse.Controllers
                                Title = T.Title,
                                Image = db.Images.Where(I => I.UserId == U.Id).First().Name
                            };
+            db.Answers.Add(new UserAnswerEntity() { TaskId=task.TaskId,UserID=task.UserId,Answer=Answer,CorrectAnswer=AnswerBool });
+            db.SaveChanges();
             return View(TaskView.First());
         }
 

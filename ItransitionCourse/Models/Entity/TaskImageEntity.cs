@@ -14,5 +14,7 @@ namespace ItransitionCourse.Models.Entity
         public string Name { get; set; }
         [Required]
         public string UserId { get; set; }
+        [Required]
+        public int TaskId { get; set; }
     }
 }

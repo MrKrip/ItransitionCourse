@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Abp.Web.Common" Version="6.5.0" />
+    <PackageReference Include="Dropbox.Api" Version="6.17.0" />
     <PackageReference Include="Markdown" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.10" />

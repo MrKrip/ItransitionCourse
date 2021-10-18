@@ -204,10 +204,13 @@ namespace ItransitionCourse.Controllers
                                  Answer3=T.Answer3,
                                  Image = db.Images.Where(I => I.UserId == U.Id).First().Name
                              };
-                var CurrentUser = _userManager.GetUserAsync(User).Result;
-                var userAnswer = db.Answers.Where(A => A.TaskId == id && A.UserID == CurrentUser.Id).ToList();
-                if(userAnswer.Count>0)
-                    ViewBag.UserAnswer = userAnswer.First();
+                if(_signInManager.IsSignedIn(User))
+                {
+                    var CurrentUser = _userManager.GetUserAsync(User).Result;
+                    var userAnswer = db.Answers.Where(A => A.TaskId == id && A.UserID == CurrentUser.Id).ToList();
+                    if(userAnswer.Count>0)
+                        ViewBag.UserAnswer = userAnswer.First();
+                }                
                 return View(TaskView.First());
             }
         }
